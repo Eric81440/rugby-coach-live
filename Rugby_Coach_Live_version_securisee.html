@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b2e59">
+<title>Rugby Coach Live — Prototype</title>
+<style>
+:root{--navy:#0b2e59;--blue:#1769c2;--pale:#eef4fb;--green:#178344;--red:#c8323e;--ink:#17263a;--muted:#65758b;--line:#d9e2ee}
+*{box-sizing:border-box}body{margin:0;background:#f3f6fa;color:var(--ink);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+header{background:linear-gradient(130deg,#082449,#1769c2);color:#fff;padding:18px 16px 22px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{font-weight:850;font-size:1.15rem;letter-spacing:.02em}.badge{font-size:.75rem;border:1px solid #ffffff70;border-radius:999px;padding:5px 9px}
+main{max-width:960px;margin:0 auto;padding:14px;display:grid;gap:14px}
+.card{background:white;border:1px solid var(--line);border-radius:18px;padding:15px;box-shadow:0 4px 16px #0b2e590b}
+h2{font-size:1.05rem;margin:0 0 12px;color:var(--navy)}label{font-size:.83rem;font-weight:700;display:block;margin:0 0 6px}
+input,select,textarea{font:inherit;border:1px solid #cbd6e4;border-radius:10px;padding:11px 12px;width:100%;background:white;color:var(--ink)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.setupgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.scoreboard{background:#081f3c;color:white;border-radius:16px;padding:16px;text-align:center}
+.teams{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center}.teamname{font-size:.85rem;color:#d8e7fa;overflow-wrap:anywhere}.score{font-size:2.3rem;font-weight:850;line-height:1.2}.dash{font-size:1.4rem;color:#a9c8ed}
+.clock{font-size:clamp(3.2rem,13vw,5rem);font-weight:950;letter-spacing:.02em;margin:5px 0 0;font-variant-numeric:tabular-nums;line-height:1.05}.period{color:#c5d9f3;font-size:1rem;font-weight:700}
+.sticky-score{position:sticky;top:0;z-index:50;background:#f3f6fa;padding:6px 0 8px;margin:-6px 0 0}.sticky-score .scoreboard{box-shadow:0 5px 18px #081f3c30}.score-controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.btn{border:0;border-radius:11px;padding:12px 14px;font-weight:800;font-size:.9rem;cursor:pointer;background:#e9eff7;color:var(--navy)}.btn.primary{background:var(--blue);color:white}.btn.green{background:var(--green);color:white}.btn.red{background:var(--red);color:white}.btn.dark{background:#183c65;color:white}.btn.small{padding:8px 10px;font-size:.8rem}
+.eventgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.eventbtn{background:#f5f8fc;border:2px solid var(--line);border-radius:16px;padding:18px 8px;min-height:112px;color:var(--navy);font-weight:900;font-size:1.05rem;cursor:pointer;touch-action:manipulation}.eventbtn span{display:block;font-size:1.9rem;margin-bottom:7px}.eventbtn:active,.btn:active{transform:scale(.98)}
+.hidden{display:none!important}.muted{color:var(--muted);font-size:.85rem}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.full{grid-column:1/-1}.choices{display:flex;flex-wrap:wrap;gap:7px}.choice{border:1px solid #cbd6e4;border-radius:999px;padding:9px 12px;background:white;cursor:pointer;font-weight:700}.choice.active{background:var(--blue);border-color:var(--blue);color:white}
+.eventlist{display:grid;gap:8px}.eventitem{border:1px solid var(--line);border-radius:12px;padding:11px;display:grid;grid-template-columns:58px 1fr auto;gap:8px;align-items:center}.eventactions{display:flex;gap:5px;align-items:center}.save-status{font-size:.78rem;margin-top:8px;color:#d9e8fa}.player-toggle{margin:0 0 8px}.backup-actions{display:flex;gap:8px;flex-wrap:wrap}.eventtime{font-weight:850;color:var(--blue);font-variant-numeric:tabular-nums}.eventtitle{font-weight:800}.eventdetail{font-size:.8rem;color:var(--muted)}.empty{padding:18px;text-align:center;color:var(--muted);background:#f7f9fc;border-radius:12px}
+.tabs{display:flex;gap:7px;flex-wrap:wrap}.tab{background:#e7eef7;color:var(--navy);border:0;border-radius:999px;padding:9px 12px;font-weight:800;cursor:pointer}.tab.active{background:var(--navy);color:white}
+.statgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.stat{background:#f4f7fb;padding:12px;border-radius:12px}.stat strong{display:block;font-size:1.55rem;color:var(--navy)}.stat small{color:var(--muted)}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}.indtable{width:100%;border-collapse:collapse;min-width:680px;font-size:.86rem}.indtable th,.indtable td{padding:10px 9px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}.indtable th{background:#eef4fb;color:var(--navy)}.indtable tr:last-child td{border-bottom:0}.indtable td.num{text-align:center;font-variant-numeric:tabular-nums}
+footer{text-align:center;color:var(--muted);font-size:.75rem;padding:0 16px 24px}
+@media(min-width:760px){main{grid-template-columns:1.1fr .9fr;align-items:start}.wide{grid-column:1/-1}.eventgrid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:420px){main{padding:8px;gap:11px}.card{padding:13px}.sticky-score{padding:4px 0 7px}.scoreboard{padding:12px 10px}.teams{gap:5px}.teamname{font-size:.82rem}.score{font-size:2rem}.clock{font-size:3.35rem}.eventgrid{gap:9px}.eventbtn{font-size:1rem;min-height:106px;padding:15px 6px}.grid2,.setupgrid,.formgrid{gap:8px}.btn{padding:13px 12px;min-height:46px;font-size:.95rem}.choices{gap:8px}.choice{padding:11px 14px;min-height:42px}}
+</style>
+</head>
+<body>
+<header><div class="top"><div class="brand">🏉 RUGBY COACH LIVE</div><div class="badge">Prototype v0.1</div></div><div style="margin-top:8px;color:#d9e8fa;font-size:.9rem">Suivi de match · fonctionne hors connexion après ouverture</div></header>
+<main>
+<section class="card wide" id="setupCard">
+<h2>Préparer le match</h2>
+<div class="setupgrid">
+<div><label for="homeName">Notre équipe</label><input id="homeName" value="Notre équipe" maxlength="50"></div>
+<div><label for="awayName">Adversaire</label><input id="awayName" value="Adversaire" maxlength="50"></div>
+<div><label for="matchDate">Date</label><input id="matchDate" type="date"></div>
+<div><label for="competition">Compétition (facultatif)</label><input id="competition" placeholder="Ex. Championnat U16"></div>
+<div><label for="halfLength">Durée d'une mi-temps</label><select id="halfLength"><option value="30">30 minutes</option><option value="35" selected>35 minutes</option><option value="40">40 minutes</option><option value="45">45 minutes</option></select></div>
+</div>
+<div class="btnrow"><button class="btn primary" id="startMatch">Créer / actualiser le match</button><button class="btn" id="newMatch">Nouveau match</button></div>
+<p class="muted">Les données sont enregistrées dans ce navigateur sur ce téléphone. Pour cette maquette, évite d'effacer les données du navigateur avant l'export.</p>
+</section>
+
+<section class="sticky-score" aria-label="Score et chronomètre toujours visibles">
+<div class="scoreboard">
+<div class="teams"><div><div class="teamname" id="homeLabel">Notre équipe</div><div class="score" id="homeScore">0</div></div><div class="dash">—</div><div><div class="teamname" id="awayLabel">Adversaire</div><div class="score" id="awayScore">0</div></div></div>
+<div class="clock" id="clock">00:00</div><div class="period" id="periodLabel">1re mi-temps · Chronomètre arrêté</div>
+</div>
+</section>
+<section class="card">
+<h2>Match en direct</h2>
+<div class="score-controls">
+<button class="btn green" id="startClock">▶ Démarrer</button><button class="btn" id="pauseClock">Ⅱ Pause</button><button class="btn dark" id="nextHalf">2e mi-temps</button><button class="btn red" id="resetClock">↺ Remise à zéro</button>
+</div>
+<div class="btnrow"><button class="btn" id="editScore">✎ Modifier le score</button><button class="btn" id="undo">↶ Annuler dernier événement</button></div>
+</section>
+
+<section class="card">
+<h2>Enregistrer un événement</h2>
+<div class="eventgrid">
+<button class="eventbtn" data-type="Pénalité"><span>🟨</span>Pénalité</button>
+<button class="eventbtn" data-type="Mêlée"><span>🤼</span>Mêlée</button>
+<button class="eventbtn" data-type="Touche"><span>🙌</span>Touche</button>
+<button class="eventbtn" data-type="Marque"><span>🏉</span>Marque</button>
+<button class="eventbtn" data-type="Autre"><span>＋</span>Autre</button>
+</div>
+</section>
+
+<section class="card hidden" id="eventFormCard">
+<h2 id="eventFormTitle">Nouvel événement</h2>
+<div class="formgrid">
+<div class="full"><label>Raccourcis de saisie rapide</label><div class="choices" id="quickChoices"></div><p class="muted">Choisis un raccourci pour préremplir l'équipe et le résultat, puis valide l'événement.</p></div>
+<div class="full"><label>Équipe concernée</label><div class="choices" id="teamChoices"></div></div>
+<div class="full"><label>N° du joueur (facultatif)</label><button type="button" class="btn small player-toggle" id="togglePlayers">Choisir un numéro ▾</button><div class="choices hidden" id="playerChoices" style="margin-bottom:8px"></div><input id="playerNo" type="number" min="1" max="99" placeholder="Autre numéro (facultatif)"></div>
+<div class="full"><label for="eventTime">Temps de jeu</label><input id="eventTime" readonly></div>
+<div class="full"><label id="subtypeLabel">Type / résultat</label><div class="choices" id="subtypeChoices"></div></div>
+<div class="full"><label for="eventNote">Observation (facultatif)</label><input id="eventNote" maxlength="160" placeholder="Ajouter une précision…"></div>
+</div>
+<div class="btnrow"><button class="btn green" id="saveEvent">✓ Enregistrer</button><button class="btn" id="cancelEvent">Annuler</button></div>
+</section>
+
+<section class="card">
+<h2>Événements du match <span class="muted" id="eventCount">(0)</span></h2>
+<div class="eventlist" id="eventList"><div class="empty">Aucun événement enregistré pour le moment.</div></div>
+<div class="btnrow"><button class="btn primary" id="exportCsv">⇩ Exporter vers Excel (CSV)</button><button class="btn" id="clearEvents">Effacer les événements</button></div><div class="backup-actions"><button class="btn dark" id="backupJson">🔒 Sauvegarder le match (JSON)</button><button class="btn" id="restoreJson">↥ Restaurer une sauvegarde</button><input id="restoreFile" type="file" accept="application/json,.json" class="hidden"></div><p class="muted" id="saveStatus">Sauvegarde automatique sur cet appareil.</p>
+</section>
+
+<section class="card wide">
+<h2>Statistiques rapides</h2>
+<div class="statgrid" id="stats">
+<div class="stat"><strong id="penHome">0</strong><small>Pénalités enregistrées pour notre équipe</small></div>
+<div class="stat"><strong id="penAway">0</strong><small>Pénalités enregistrées pour l'adversaire</small></div>
+<div class="stat"><strong id="scrumHomePct">—</strong><small>Mêlées réussies — notre équipe</small><div class="muted" id="scrumHomeDetail">0 gagnée · 0 perdue · 0 conservée</div></div>
+<div class="stat"><strong id="scrumAwayPct">—</strong><small>Mêlées réussies — adversaire</small><div class="muted" id="scrumAwayDetail">0 gagnée · 0 perdue · 0 conservée</div></div>
+<div class="stat"><strong id="lineHomePct">—</strong><small>Touches réussies — notre équipe</small><div class="muted" id="lineHomeDetail">0 gagnée · 0 perdue · 0 conservée</div></div>
+<div class="stat"><strong id="lineAwayPct">—</strong><small>Touches réussies — adversaire</small><div class="muted" id="lineAwayDetail">0 gagnée · 0 perdue · 0 conservée</div></div>
+</div>
+<p class="muted">Calcul proposé : taux de réussite = (gagnées + conservées) ÷ (gagnées + perdues + conservées). Les événements « pénalité obtenue/concédée » ne sont pas inclus dans ce calcul.</p>
+</section>
+
+<section class="card wide">
+<h2>Statistiques individuelles par joueur</h2>
+<p class="muted">Les statistiques sont calculées à partir des événements associés à un numéro de joueur. Pour obtenir un bilan complet, pense à renseigner le numéro lors de la saisie des actions.</p>
+<div class="formgrid" style="margin-bottom:12px">
+  <div><label for="individualTeam">Équipe</label><select id="individualTeam"><option value="home">Notre équipe</option><option value="away">Adversaire</option></select></div>
+  <div><label for="individualPlayer">Joueur</label><select id="individualPlayer"><option value="all">Tous les joueurs numérotés</option></select></div>
+</div>
+<p class="muted">Le fichier CSV s’ouvre dans Excel et contient une ligne par joueur et par équipe. Il pourra servir de base aux bilans après match.</p>
+<div id="individualStats"><div class="empty">Aucune statistique individuelle disponible pour le moment.</div></div>
+</section>
+
+<section class="card wide">
+<h2>Bilan collectif de fin de match</h2>
+<p class="muted">Synthèse automatique à partir du score et des événements saisis. Elle peut servir de support au débriefing du staff.</p>
+<div class="btnrow" style="margin-bottom:12px">
+<button class="btn primary" id="exportMatchSummary">⇩ Exporter le bilan de match (CSV pour Excel)</button>
+</div>
+<div id="matchSummary"><div class="empty">Le bilan apparaîtra ici dès que des événements seront enregistrés.</div></div>
+</section>
+</main>
+<footer>Maquette de démonstration — à tester avant toute utilisation officielle en match.</footer>
+
+<script>
+const $ = id => document.getElementById(id);
+const storageKey = 'rugbyCoachLivePrototypeV1';
+const dbName = 'RugbyCoachLiveDB';
+const dbStore = 'matches';
+let dbPromise = null;
+let state = {home:'Notre équipe',away:'Adversaire',date:'',competition:'',halfLength:35,half:1,elapsed:0,running:false,homeScore:0,awayScore:0,events:[],startedAt:null};
+let activeType=null, activeTeam='home', activeSubtype='', editingEventId=null;
+let tick=null;
+const options = {
+'Pénalité':['Hors-jeu','Jeu déloyal','Faute au ruck','Plaquage haut','Faute en mêlée','Faute en touche','Tenir au sol','En-avant','Autre'],
+'Mêlée':['Gagnée','Perdue','Conservée','Pénalité obtenue','Pénalité concédée'],
+'Touche':['Gagnée','Perdue','Conservée','Volée / récupérée','Pénalité obtenue','Pénalité concédée'],
+'Marque':['Essai','Transformation réussie','Transformation manquée','Pénalité réussie','Pénalité manquée','Drop réussi','Drop manqué'],
+'Jeu au pied':['Trouvée en touche','Occupation gagnée','Ballon récupéré','Ballon perdu','Contre','Autre'],
+'Autre':['Turnover gagné','Turnover perdu','Carton jaune','Carton rouge','Blessure','Remplacement','Fin de période','Autre']
+};
+function openDatabase(){
+  if(!('indexedDB' in window)) return Promise.reject(new Error('IndexedDB indisponible'));
+  if(!dbPromise){
+    dbPromise=new Promise((resolve,reject)=>{
+      const request=indexedDB.open(dbName,1);
+      request.onupgradeneeded=()=>{const db=request.result;if(!db.objectStoreNames.contains(dbStore))db.createObjectStore(dbStore);};
+      request.onsuccess=()=>resolve(request.result);
+      request.onerror=()=>reject(request.error||new Error('Ouverture de la base impossible'));
+    });
+  }
+  return dbPromise;
+}
+async function saveIndexedDB(snapshot){
+  const db=await openDatabase();
+  await new Promise((resolve,reject)=>{
+    const tx=db.transaction(dbStore,'readwrite');
+    tx.objectStore(dbStore).put({state:snapshot,savedAt:snapshot._savedAt||Date.now()},storageKey);
+    tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error||new Error('Écriture impossible'));tx.onabort=()=>reject(tx.error||new Error('Écriture annulée'));
+  });
+}
+async function readIndexedDB(){
+  const db=await openDatabase();
+  return await new Promise((resolve,reject)=>{
+    const tx=db.transaction(dbStore,'readonly');const req=tx.objectStore(dbStore).get(storageKey);
+    req.onsuccess=()=>resolve(req.result||null);req.onerror=()=>reject(req.error||new Error('Lecture impossible'));
+  });
+}
+function persist(){
+  state._savedAt=Date.now();
+  const snapshot=JSON.parse(JSON.stringify(state));
+  let localOK=false;
+  try{localStorage.setItem(storageKey,JSON.stringify(snapshot));localOK=true;}catch(e){console.warn('Sauvegarde locale impossible',e);}
+  saveIndexedDB(snapshot).then(()=>{
+    const status=$('saveStatus');if(status)status.textContent='✓ Match sauvegardé automatiquement sur cet appareil (deux espaces de stockage).';
+  }).catch(e=>{
+    console.warn('Sauvegarde secondaire impossible',e);
+    const status=$('saveStatus');if(status)status.textContent=localOK?'✓ Sauvegarde locale active · Pense à exporter régulièrement une copie JSON.':'⚠ Sauvegarde automatique indisponible : exporte immédiatement une copie JSON.';
+  });
+  return localOK;
+}
+function load(){try{const x=JSON.parse(localStorage.getItem(storageKey));if(x&&Array.isArray(x.events))state={...state,...x};}catch(e){console.warn('Lecture sauvegarde locale impossible',e);}}
+async function initPersistentState(){
+  load();
+  try{
+    const backup=await readIndexedDB();
+    if(backup&&backup.state&&Array.isArray(backup.state.events)&&Number(backup.savedAt||0)>Number(state._savedAt||0))state={...state,...backup.state};
+  }catch(e){console.warn('Lecture de la sauvegarde secondaire impossible',e);}
+  if(state.running){state.elapsed=elapsedNow();state.running=false;state.startedAt=null;}
+  render();
+  if(navigator.storage&&navigator.storage.persist){navigator.storage.persist().catch(()=>{});}
+}
+function elapsedNow(){return state.elapsed+(state.running&&state.startedAt?Math.max(0,Date.now()-state.startedAt):0);}
+function fmt(ms){let s=Math.floor(ms/1000),m=Math.floor(s/60);s%=60;return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');}
+function currentLabel(){return state.half===1?'1re mi-temps':state.half===2?'2e mi-temps':'Période '+state.half;}
+function render(){
+$('homeName').value=state.home;$('awayName').value=state.away;$('matchDate').value=state.date||'';$('competition').value=state.competition||'';$('halfLength').value=state.halfLength;
+$('homeLabel').textContent=state.home;$('awayLabel').textContent=state.away;$('homeScore').textContent=state.homeScore;$('awayScore').textContent=state.awayScore;
+$('clock').textContent=fmt(elapsedNow());$('periodLabel').textContent=currentLabel()+' · '+(state.running?'Chronomètre en marche':'Chronomètre arrêté');
+$('eventCount').textContent='('+state.events.length+')';
+renderEvents();renderStats();renderIndividualStats();renderMatchSummary();persist();
+}
+function stopTick(){if(tick){clearInterval(tick);tick=null;}}
+function startClock(){if(state.running)return;state.running=true;state.startedAt=Date.now();tick=setInterval(()=>{$('clock').textContent=fmt(elapsedNow());$('periodLabel').textContent=currentLabel()+' · Chronomètre en marche';},250);render();persist();}
+function pauseClock(){if(!state.running)return;state.elapsed=elapsedNow();state.running=false;state.startedAt=null;stopTick();render();}
+function openForm(type){
+activeType=type;activeTeam='home';activeSubtype='';editingEventId=null;
+$('eventFormCard').classList.remove('hidden');$('eventFormTitle').textContent='Nouvel événement · '+type;
+$('playerNo').value='';$('eventNote').value='';$('eventTime').value=fmt(elapsedNow());$('playerChoices').classList.add('hidden');$('togglePlayers').textContent='Choisir un numéro ▾';
+$('subtypeLabel').textContent=type==='Pénalité'?'Type de faute':type==='Marque'?'Type de marque':'Type / résultat';
+renderTeamChoices();renderSubtypeChoices();
+$('eventFormCard').scrollIntoView({behavior:'smooth',block:'center'});
+}
+function renderQuickChoices(){
+const el=$('quickChoices'); if(!el)return; el.innerHTML='';
+const presets={
+'Pénalité':[
+['Hors-jeu contre nous','home','Hors-jeu'],['Hors-jeu adverse','away','Hors-jeu'],
+['Plaquage haut contre nous','home','Plaquage haut'],['Plaquage haut adverse','away','Plaquage haut'],
+['Faute au ruck contre nous','home','Faute au ruck'],['Faute au ruck adverse','away','Faute au ruck']
+],
+'Mêlée':[
+['Mêlée gagnée par nous','home','Gagnée'],['Mêlée perdue par nous','home','Perdue'],['Mêlée conservée par nous','home','Conservée'],
+['Mêlée gagnée par eux','away','Gagnée'],['Mêlée perdue par eux','away','Perdue'],['Mêlée conservée par eux','away','Conservée']
+],
+'Touche':[
+['Touche gagnée par nous','home','Gagnée'],['Touche perdue par nous','home','Perdue'],['Touche conservée par nous','home','Conservée'],
+['Touche gagnée par eux','away','Gagnée'],['Touche perdue par eux','away','Perdue'],['Touche conservée par eux','away','Conservée']
+]
+};
+(presets[activeType]||[]).forEach(([label,team,sub])=>{
+const b=document.createElement('button');b.type='button';b.className='choice';b.textContent=label;
+b.onclick=()=>{activeTeam=team;activeSubtype=sub;renderTeamChoices();renderSubtypeChoices();[...el.children].forEach(x=>x.classList.remove('active'));b.classList.add('active');};
+el.appendChild(b);
+});
+}
+function renderTeamChoices(){const el=$('teamChoices');el.innerHTML='';[['home',state.home],['away',state.away]].forEach(([v,t])=>{const b=document.createElement('button');b.className='choice '+(activeTeam===v?'active':'');b.textContent=t;b.onclick=()=>{activeTeam=v;renderTeamChoices();};el.appendChild(b);});}
+function renderPlayerChoices(){const el=$('playerChoices');el.innerHTML='';for(let n=1;n<=23;n++){const b=document.createElement('button');b.type='button';b.className='choice '+(Number($('playerNo').value)===n?'active':'');b.textContent=String(n);b.onclick=()=>{$('playerNo').value=n;renderPlayerChoices();$('playerChoices').classList.add('hidden');$('togglePlayers').textContent='N° '+n+' choisi · Modifier ▾';};el.appendChild(b);}}
+function renderSubtypeChoices(){const el=$('subtypeChoices');el.innerHTML='';(options[activeType]||['Autre']).forEach(v=>{const b=document.createElement('button');b.className='choice '+(activeSubtype===v?'active':'');b.textContent=v;b.onclick=()=>{activeSubtype=v;renderSubtypeChoices();};el.appendChild(b);});}
+function scoreDelta(type,sub){if(type!=='Marque')return 0;if(sub==='Essai')return 5;if(sub==='Transformation réussie'||sub==='Pénalité réussie'||sub==='Drop réussi')return sub==='Transformation réussie'?2:3;return 0;}
+function addScore(team,delta){const key=team==='home'?'homeScore':'awayScore';state[key]=Math.max(0,Number(state[key])+delta);}
+function saveEvent(){
+if(!activeSubtype){alert('Choisis un type ou un résultat.');return;}
+const ev={id:editingEventId||Date.now()+Math.random(),type:activeType,team:activeTeam,teamName:activeTeam==='home'?state.home:state.away,player:$('playerNo').value?Number($('playerNo').value):'',time:editingEventId?Number($('eventTime').dataset.seconds||0)*1000:Math.floor(elapsedNow()/1000)*1000,half:editingEventId?Number($('eventTime').dataset.half||state.half):state.half,subtype:activeSubtype,note:$('eventNote').value.trim(),delta:scoreDelta(activeType,activeSubtype)};
+if(editingEventId){
+  const index=state.events.findIndex(e=>e.id===editingEventId);
+  if(index>=0){const old=state.events[index];if(old.delta)addScore(old.team,-old.delta);state.events[index]=ev;if(ev.delta)addScore(ev.team,ev.delta);}
+}else{state.events.push(ev);if(ev.delta)addScore(ev.team,ev.delta);}
+editingEventId=null;$('eventFormCard').classList.add('hidden');render();
+}
+function removeEvent(id){const i=state.events.findIndex(e=>e.id===id);if(i<0)return;const ev=state.events[i];if(ev.delta)addScore(ev.team,-ev.delta);state.events.splice(i,1);render();}
+function editEvent(id){
+ const ev=state.events.find(e=>e.id===id);if(!ev)return;
+ editingEventId=id;activeType=ev.type;activeTeam=ev.team;activeSubtype=ev.subtype;
+ $('eventFormTitle').textContent='Modifier un événement';
+ $('eventFormCard').classList.remove('hidden');
+ $('playerNo').value=ev.player||'';$('eventNote').value=ev.note||'';
+ $('eventTime').value=fmt(ev.time);$('eventTime').dataset.seconds=Math.floor(ev.time/1000);$('eventTime').dataset.half=ev.half;
+ $('playerChoices').classList.add('hidden');$('togglePlayers').textContent=ev.player?'N° '+ev.player+' choisi · Modifier ▾':'Choisir un numéro ▾';
+ renderQuickChoices();renderTeamChoices();renderSubtypeChoices();
+ $('eventFormCard').scrollIntoView({behavior:'smooth',block:'center'});
+}
+function renderEvents(){
+const el=$('eventList');el.innerHTML='';
+if(!state.events.length){el.innerHTML='<div class="empty">Aucun événement enregistré pour le moment.</div>';return;}
+[...state.events].reverse().forEach(ev=>{const row=document.createElement('div');row.className='eventitem';
+const time=document.createElement('div');time.className='eventtime';time.textContent=fmt(ev.time);
+const info=document.createElement('div');const title=document.createElement('div');title.className='eventtitle';title.textContent=ev.type+' · '+ev.subtype;const detail=document.createElement('div');detail.className='eventdetail';detail.textContent=ev.teamName+' · '+(ev.player?'N° '+ev.player+' · ':'')+currentHalfName(ev.half)+(ev.note?' · '+ev.note:'');info.append(title,detail);
+const actions=document.createElement('div');actions.className='eventactions';const edit=document.createElement('button');edit.className='btn small';edit.textContent='✎';edit.title='Modifier cet événement';edit.onclick=()=>editEvent(ev.id);const del=document.createElement('button');del.className='btn small';del.textContent='✕';del.title='Supprimer cet événement';del.onclick=()=>{if(confirm('Supprimer cet événement ?'))removeEvent(ev.id);};actions.append(edit,del);row.append(time,info,actions);el.appendChild(row);});
+}
+function currentHalfName(h){return h===1?'1re MT':h===2?'2e MT':'Période '+h;}
+function renderStats(){
+$('penHome').textContent=state.events.filter(e=>e.type==='Pénalité'&&e.team==='home').length;
+$('penAway').textContent=state.events.filter(e=>e.type==='Pénalité'&&e.team==='away').length;
+function phaseStats(type,team){
+const ev=state.events.filter(e=>e.type===type&&e.team===team);
+const won=ev.filter(e=>e.subtype==='Gagnée').length;
+const lost=ev.filter(e=>e.subtype==='Perdue').length;
+const kept=ev.filter(e=>e.subtype==='Conservée').length;
+const total=won+lost+kept;
+const pct=total?Math.round(((won+kept)/total)*100)+'%':'—';
+return {won,lost,kept,total,pct};
+}
+[['Mêlée','home','scrumHome'],['Mêlée','away','scrumAway'],['Touche','home','lineHome'],['Touche','away','lineAway']].forEach(([type,team,prefix])=>{
+const s=phaseStats(type,team);
+$(prefix+'Pct').textContent=s.pct;
+$(prefix+'Detail').textContent=s.won+' gagnée(s) · '+s.lost+' perdue(s) · '+s.kept+' conservée(s) · '+s.total+' au total';
+});
+}
+
+
+
+function renderMatchSummary(){
+  const out=$('matchSummary');
+  if(!out)return;
+  const teams=[{key:'home',name:state.home,score:state.homeScore},{key:'away',name:state.away,score:state.awayScore}];
+  const eventTypes=['Pénalité','Mêlée','Touche','Marque','Jeu au pied','Autre'];
+  const eventCount=(team,type)=>state.events.filter(e=>e.team===team&&e.type===type).length;
+  const scoreRows=teams.map(t=>{
+    const ev=state.events.filter(e=>e.team===t.key&&e.type==='Marque');
+    return {name:t.name,score:t.score,tries:ev.filter(e=>e.subtype==='Essai').length,
+      conversions:ev.filter(e=>e.subtype==='Transformation réussie').length,
+      penalties:ev.filter(e=>e.subtype==='Pénalité réussie').length,
+      drops:ev.filter(e=>e.subtype==='Drop réussi').length};
+  });
+  const phaseStats=(type,team)=>{
+    const ev=state.events.filter(e=>e.type===type&&e.team===team);
+    const won=ev.filter(e=>e.subtype==='Gagnée'||(type==='Touche'&&e.subtype==='Volée / récupérée')).length;
+    const lost=ev.filter(e=>e.subtype==='Perdue').length;
+    const kept=ev.filter(e=>e.subtype==='Conservée').length;
+    const total=won+lost+kept;
+    return {won,lost,kept,total,pct:total?Math.round((won+kept)*100/total)+'%':'—'};
+  };
+  const comparison=teams.map(t=>{
+    const scr=phaseStats('Mêlée',t.key), line=phaseStats('Touche',t.key);
+    return `<tr><td><strong>${t.name}</strong></td><td class="num">${t.score}</td><td class="num">${eventCount(t.key,'Pénalité')}</td><td class="num">${scr.won+scr.kept}/${scr.total||0} (${scr.pct})</td><td class="num">${line.won+line.kept}/${line.total||0} (${line.pct})</td><td class="num">${eventCount(t.key,'Jeu au pied')}</td><td class="num">${eventCount(t.key,'Autre')}</td></tr>`;
+  }).join('');
+  const scoring=scoreRows.map(s=>`<div class="stat"><strong>${s.score}</strong><small>${s.name}</small><div class="muted">${s.tries} essai(s) · ${s.conversions} transformation(s) réussie(s) · ${s.penalties} pénalité(s) réussie(s) · ${s.drops} drop(s)</div></div>`).join('');
+  const notes=state.events.filter(e=>e.note).slice(-8).reverse();
+  out.innerHTML=`<div class="statgrid">${scoring}</div>
+  <h3 style="color:var(--navy);font-size:.95rem;margin:16px 0 8px">Comparaison des équipes</h3>
+  <div class="tablewrap"><table class="indtable"><thead><tr><th>Équipe</th><th>Score</th><th>Pénalités</th><th>Mêlées réussies</th><th>Touches réussies</th><th>Jeu au pied</th><th>Autres actions</th></tr></thead><tbody>${comparison}</tbody></table></div>
+  <h3 style="color:var(--navy);font-size:.95rem;margin:16px 0 8px">Repères pour le débriefing</h3>
+  <div class="statgrid">
+    <div class="stat"><strong>${state.events.length}</strong><small>Événements saisis au total</small></div>
+    <div class="stat"><strong>${eventCount('home','Marque')+eventCount('away','Marque')}</strong><small>Actions de marque enregistrées (essais et tentatives au pied)</small></div>
+    <div class="stat"><strong>${eventCount('home','Mêlée')+eventCount('away','Mêlée')}</strong><small>Événements de mêlée</small></div>
+    <div class="stat"><strong>${eventCount('home','Touche')+eventCount('away','Touche')}</strong><small>Événements de touche</small></div>
+  </div>
+  ${notes.length?'<h3 style="color:var(--navy);font-size:.95rem;margin:16px 0 8px">Dernières observations saisies</h3><ul>'+notes.map(e=>'<li>'+e.teamName+' · '+e.type+' · '+e.note+'</li>').join('')+'</ul>':''}
+  <p class="muted">Attention : les détails de points sont comptés à partir des événements de marque saisis. Le score affiché reste le score officiel du tableau de match et peut avoir été corrigé manuellement.</p>`;
+}
+function exportMatchSummary(){
+  const teams=[{key:'home',name:state.home},{key:'away',name:state.away}];
+  const headers=['Date','Compétition','Équipe','Score','Essais','Transformations réussies','Pénalités réussies','Drops réussis','Pénalités enregistrées','Événements de mêlée','Mêlées réussies %','Événements de touche','Touches réussies %','Jeu au pied','Autres actions'];
+  const esc=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
+  const rows=[headers];
+  teams.forEach(t=>{
+    const ev=state.events.filter(e=>e.team===t.key);
+    const count=(type,sub)=>ev.filter(e=>e.type===type&&(!sub||e.subtype===sub)).length;
+    const rate=type=>{
+      const x=ev.filter(e=>e.type===type);
+      const won=x.filter(e=>e.subtype==='Gagnée'||(type==='Touche'&&e.subtype==='Volée / récupérée')).length;
+      const lost=x.filter(e=>e.subtype==='Perdue').length;
+      const kept=x.filter(e=>e.subtype==='Conservée').length;
+      const total=won+lost+kept;
+      return total?Math.round((won+kept)*100/total)+'%':'N/D';
+    };
+    rows.push([state.date,state.competition,t.name,t.key==='home'?state.homeScore:state.awayScore,count('Marque','Essai'),count('Marque','Transformation réussie'),count('Marque','Pénalité réussie'),count('Marque','Drop réussi'),count('Pénalité'),count('Mêlée'),rate('Mêlée'),count('Touche'),rate('Touche'),count('Jeu au pied'),count('Autre')]);
+  });
+  const detail=[['Équipe','Temps','Période','Type','Résultat','Joueur','Observation']];
+  state.events.forEach(e=>detail.push([e.teamName,fmt(e.time),currentHalfName(e.half),e.type,e.subtype,e.player?'N° '+e.player:'',e.note||'']));
+  const csv='\uFEFF'+rows.map(r=>r.map(esc).join(';')).join('\r\n')+'\r\n\r\n'+detail.map(r=>r.map(esc).join(';')).join('\r\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  deliverFile(blob,'bilan_collectif_match_rugby.csv');
+}
+
+function exportPlayerStats(){
+  const teams=[{key:'home',name:state.home},{key:'away',name:state.away}];
+  const headers=['Équipe','Joueur','Événements saisis','Essais','Transformations réussies','Transformations manquées','Pénalités réussies','Pénalités manquées','Drops réussis','Drops manqués','Pénalités enregistrées','Mêlées gagnées','Mêlées perdues','Mêlées conservées','Touches gagnées/récupérées','Touches perdues','Touches conservées','Jeu au pied','Autres événements'];
+  const csvEscape=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
+  const rows=[headers];
+  teams.forEach(team=>{
+    const players=[...new Set(state.events.filter(e=>e.team===team.key&&e.player!==''&&e.player!==null&&e.player!==undefined).map(e=>String(e.player)))].sort((a,b)=>Number(a)-Number(b));
+    players.forEach(player=>{
+      const evs=state.events.filter(e=>e.team===team.key&&String(e.player)===player);
+      const count=(type,sub)=>evs.filter(e=>e.type===type&&(!sub||e.subtype===sub)).length;
+      rows.push([
+        team.name,player,evs.length,
+        count('Marque','Essai'),
+        count('Marque','Transformation réussie'),
+        count('Marque','Transformation manquée'),
+        count('Marque','Pénalité réussie'),
+        count('Marque','Pénalité manquée'),
+        count('Marque','Drop réussi'),
+        count('Marque','Drop manqué'),
+        count('Pénalité'),
+        count('Mêlée','Gagnée'),
+        count('Mêlée','Perdue'),
+        count('Mêlée','Conservée'),
+        count('Touche','Gagnée')+count('Touche','Volée / récupérée'),
+        count('Touche','Perdue'),
+        count('Touche','Conservée'),
+        count('Jeu au pied'),
+        count('Autre')
+      ]);
+    });
+  });
+  if(rows.length===1){
+    alert('Aucune statistique individuelle à exporter. Enregistre d’abord des événements avec un numéro de joueur.');
+    return;
+  }
+  const csv='\uFEFF'+rows.map(row=>row.map(csvEscape).join(';')).join('\r\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  deliverFile(blob,'bilan_individuel_rugby.csv');
+}
+
+function renderIndividualStats(){
+  const teamSelect=$('individualTeam'), playerSelect=$('individualPlayer'), out=$('individualStats');
+  if(!teamSelect||!playerSelect||!out)return;
+  const previousTeam=teamSelect.value||'home';
+  const previousPlayer=playerSelect.value||'all';
+  teamSelect.options[0].text=state.home;
+  teamSelect.options[1].text=state.away;
+  const team=teamSelect.value;
+  const players=[...new Set(state.events.filter(e=>e.team===team&&e.player!==''&&e.player!==null&&e.player!==undefined).map(e=>String(e.player)))].sort((a,b)=>Number(a)-Number(b));
+  playerSelect.innerHTML='<option value="all">Tous les joueurs numérotés</option>'+players.map(n=>'<option value="'+n+'">N° '+n+'</option>').join('');
+  if(players.includes(previousPlayer)||previousPlayer==='all')playerSelect.value=previousPlayer;
+  else playerSelect.value='all';
+  const selected=playerSelect.value;
+  const evs=state.events.filter(e=>e.team===team&&e.player!==''&&e.player!==null&&e.player!==undefined&&(selected==='all'||String(e.player)===selected));
+  if(!evs.length){
+    out.innerHTML='<div class="empty">Aucune action enregistrée pour '+(selected==='all'?'cette équipe avec un numéro de joueur.':'le joueur n° '+selected+'.')+'</div>';
+    return;
+  }
+  const count=(type,sub)=>evs.filter(e=>e.type===type&&(!sub||e.subtype===sub)).length;
+  const rows=[
+    ['Essais',count('Marque','Essai')],
+    ['Transformations réussies',count('Marque','Transformation réussie')],
+    ['Transformations manquées',count('Marque','Transformation manquée')],
+    ['Pénalités réussies',count('Marque','Pénalité réussie')],
+    ['Pénalités manquées',count('Marque','Pénalité manquée')],
+    ['Drops réussis',count('Marque','Drop réussi')],
+    ['Drops manqués',count('Marque','Drop manqué')],
+    ['Pénalités enregistrées',count('Pénalité')],
+    ['Mêlées gagnées',count('Mêlée','Gagnée')],
+    ['Mêlées perdues',count('Mêlée','Perdue')],
+    ['Mêlées conservées',count('Mêlée','Conservée')],
+    ['Touches gagnées',count('Touche','Gagnée')+count('Touche','Volée / récupérée')],
+    ['Touches perdues',count('Touche','Perdue')],
+    ['Touches conservées',count('Touche','Conservée')],
+    ['Actions de jeu au pied',count('Jeu au pied')],
+    ['Autres événements',count('Autre')]
+  ];
+  const playerRows=selected==='all'
+    ? players.map(n=>{
+        const pe=evs.filter(e=>String(e.player)===n);
+        return {n,events:pe,tries:pe.filter(e=>e.type==='Marque'&&e.subtype==='Essai').length,
+          scrumWon:pe.filter(e=>e.type==='Mêlée'&&e.subtype==='Gagnée').length,
+          lineWon:pe.filter(e=>e.type==='Touche'&&(e.subtype==='Gagnée'||e.subtype==='Volée / récupérée')).length};
+      })
+    : [{n:selected,events:evs,tries:count('Marque','Essai'),scrumWon:count('Mêlée','Gagnée'),lineWon:count('Touche','Gagnée')+count('Touche','Volée / récupérée')}];
+  let summary='';
+  if(selected==='all'){
+    summary='<div class="tablewrap"><table class="indtable"><thead><tr><th>Joueur</th><th>Événements saisis</th><th>Essais</th><th>Mêlées gagnées</th><th>Touches gagnées / récupérées</th></tr></thead><tbody>'+
+      playerRows.map(r=>'<tr><td><strong>N° '+r.n+'</strong></td><td class="num">'+r.events.length+'</td><td class="num">'+r.tries+'</td><td class="num">'+r.scrumWon+'</td><td class="num">'+r.lineWon+'</td></tr>').join('')+
+      '</tbody></table></div><p class="muted">Sélectionne un joueur dans le menu pour afficher le détail de ses événements.</p>';
+  } else {
+    summary='<div class="statgrid">'+rows.map(([label,value])=>'<div class="stat"><strong>'+value+'</strong><small>'+label+'</small></div>').join('')+'</div>';
+    summary+='<h3 style="color:var(--navy);font-size:.95rem;margin:16px 0 8px">Événements enregistrés pour le joueur n° '+selected+'</h3><div class="eventlist">'+
+      [...evs].reverse().map(e=>'<div class="eventitem"><div class="eventtime">'+fmt(e.time)+'</div><div><div class="eventtitle">'+e.type+' · '+e.subtype+'</div><div class="eventdetail">'+currentHalfName(e.half)+(e.note?' · '+e.note:'')+'</div></div></div>').join('')+
+      '</div>';
+  }
+  out.innerHTML=summary;
+}
+
+async function deliverFile(blob,filename){
+ const file=new File([blob],filename,{type:blob.type});
+ if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+   try{await navigator.share({files:[file],title:filename});return;}catch(err){if(err&&err.name==='AbortError')return;}
+ }
+ const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();
+ setTimeout(()=>{a.remove();URL.revokeObjectURL(url);},3000);
+}
+function exportBackup(){
+ const payload={app:'Rugby Coach Live',schemaVersion:1,exportedAt:new Date().toISOString(),state};
+ const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+ deliverFile(blob,'rugby-coach-live-sauvegarde-'+(state.date||'match')+'.json');
+}
+function restoreBackup(file){
+ const reader=new FileReader();
+ reader.onload=()=>{try{
+   const data=JSON.parse(reader.result);const restored=data.state||data;
+   if(!restored||!Array.isArray(restored.events)||!('homeScore'in restored)||!('awayScore'in restored))throw new Error('format');
+   if(!confirm('Restaurer cette sauvegarde ? Le contenu actuel de l’application sera remplacé.'))return;
+   pauseClock();state={...state,...restored,running:false,startedAt:null};render();alert('Sauvegarde restaurée. Vérifie le score et les événements.');
+ }catch(e){alert('Ce fichier ne semble pas être une sauvegarde Rugby Coach Live valide.');}};
+ reader.readAsText(file);
+}
+$('startMatch').onclick=()=>{state.home=$('homeName').value.trim()||'Notre équipe';state.away=$('awayName').value.trim()||'Adversaire';state.date=$('matchDate').value;state.competition=$('competition').value.trim();state.halfLength=Number($('halfLength').value);render();alert('Match prêt. Tu peux démarrer le chronomètre.');};
+$('newMatch').onclick=()=>{if(!confirm('Créer un nouveau match ? Le match actuel sera remplacé dans ce prototype. Pense à exporter ses données.'))return;pauseClock();state={home:$('homeName').value.trim()||'Notre équipe',away:$('awayName').value.trim()||'Adversaire',date:$('matchDate').value,competition:$('competition').value.trim(),halfLength:Number($('halfLength').value),half:1,elapsed:0,running:false,homeScore:0,awayScore:0,events:[],startedAt:null};render();};
+$('startClock').onclick=startClock;$('pauseClock').onclick=pauseClock;
+$('nextHalf').onclick=()=>{pauseClock();state.half=state.half===1?2:state.half+1;state.elapsed=0;render();};
+$('resetClock').onclick=()=>{if(!confirm('Remettre le chronomètre de la période à zéro ?'))return;pauseClock();state.elapsed=0;render();};
+$('editScore').onclick=()=>{const h=prompt('Score de '+state.home+':',state.homeScore);if(h===null)return;const a=prompt('Score de '+state.away+':',state.awayScore);if(a===null)return;if(!Number.isFinite(Number(h))||!Number.isFinite(Number(a))||Number(h)<0||Number(a)<0){alert('Entre deux scores valides.');return;}state.homeScore=Math.floor(Number(h));state.awayScore=Math.floor(Number(a));render();};
+$('undo').onclick=()=>{if(!state.events.length){alert('Aucun événement à annuler.');return;}removeEvent(state.events[state.events.length-1].id);};
+document.querySelectorAll('.eventbtn').forEach(b=>b.onclick=()=>openForm(b.dataset.type));
+$('togglePlayers').onclick=()=>{const box=$('playerChoices');box.classList.toggle('hidden');$('togglePlayers').textContent=box.classList.contains('hidden')?($('playerNo').value?'N° '+$('playerNo').value+' choisi · Modifier ▾':'Choisir un numéro ▾'):'Masquer les numéros ▴';};$('playerNo').addEventListener('input',()=>{renderPlayerChoices();$('togglePlayers').textContent=$('playerNo').value?'N° '+$('playerNo').value+' choisi · Modifier ▾':'Choisir un numéro ▾';});$('individualTeam').addEventListener('change',renderIndividualStats);$('individualPlayer').addEventListener('change',renderIndividualStats);$('saveEvent').onclick=saveEvent;if($('exportPlayerStats'))$('exportPlayerStats').onclick=exportPlayerStats;$('exportMatchSummary').onclick=exportMatchSummary;$('cancelEvent').onclick=()=>$('eventFormCard').classList.add('hidden');
+$('clearEvents').onclick=()=>{if(!confirm('Effacer tous les événements ? Le score actuel sera conservé.'))return;state.events=[];render();};
+$('exportCsv').onclick=()=>{
+const rows=[['Date',state.date],['Compétition',state.competition],['Équipe',state.home],['Adversaire',state.away],['Score final',state.homeScore+'-'+state.awayScore],[],['Temps','Période','Événement','Équipe','N° joueur','Type / résultat','Observation']];
+state.events.forEach(e=>rows.push([fmt(e.time),currentHalfName(e.half),e.type,e.teamName,e.player,e.subtype,e.note]));
+const csv=rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(';')).join('\r\n');
+const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});deliverFile(blob,'rugby-coach-live-'+(state.date||'match')+'.csv');
+};
+$('backupJson').onclick=exportBackup;$('restoreJson').onclick=()=>$('restoreFile').click();$('restoreFile').onchange=e=>{if(e.target.files&&e.target.files[0])restoreBackup(e.target.files[0]);e.target.value='';};
+$('matchDate').value=new Date().toISOString().slice(0,10);
+window.addEventListener('pagehide',()=>{if(state.running){state.elapsed=elapsedNow();state.running=false;state.startedAt=null;stopTick();}persist();});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')persist();});
+initPersistentState();
+</script>
+</body>
+</html>
